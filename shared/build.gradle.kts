@@ -26,6 +26,7 @@ kotlin {
                 implementation(compose.material)
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
+                implementation("media.kamel:kamel-image:0.6.0")
             }
         }
         val androidMain by getting {
@@ -52,7 +53,10 @@ android {
     namespace = "com.myapplication.common"
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    sourceSets["main"].res.srcDirs("src/androidMain/res")
+    sourceSets["main"].res.srcDirs(
+        "src/androidMain/res",
+        "src/commonMain/resources"
+    )
     sourceSets["main"].resources.srcDirs("src/commonMain/resources")
 
     defaultConfig {
