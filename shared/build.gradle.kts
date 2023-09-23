@@ -27,6 +27,7 @@ kotlin {
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
                 implementation("media.kamel:kamel-image:0.6.0")
+                implementation(compose.materialIconsExtended)
             }
         }
         val androidMain by getting {

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,12 +13,18 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,9 +41,6 @@ fun App() {
     }
 }
 
-expect fun getPlatformName(): String
-
-
 expect val billabongFontFamily: FontFamily
 
 @Composable
@@ -52,7 +56,7 @@ fun Dashboard(userData: List<Post>) {
 
         AnimatedVisibility(userData.isNotEmpty()) {
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxSize(),
                 content = {
                     items(userData) {
@@ -68,18 +72,37 @@ fun Dashboard(userData: List<Post>) {
 @Composable
 fun PostPublished(data: Post) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Start
+        horizontalAlignment = Alignment.Start,
+    ) {
+        Username(data.username, data.isVerified)
+        Image(
+            painter = painterResource(data.postedPhoto),
+            "",
+            modifier = Modifier
+                .padding(top = 4.dp, bottom = 4.dp)
+                .fillMaxWidth(),
+            contentScale = ContentScale.FillWidth
+        )
+        PostInteraction()
+        Description(data)
+    }
+}
+
+@Composable
+fun Username(userName: String, isVerified: Boolean) {
+    Row(
+        modifier = Modifier.fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row() {
             Text(
                 fontWeight = FontWeight.Bold,
-                text = data.username
+                text = userName
             )
-            if (data.isVerified) {
+            if (isVerified) {
                 Icon(
                     modifier = Modifier
                         .size(20.dp)
@@ -90,12 +113,57 @@ fun PostPublished(data: Post) {
                 )
             }
         }
-        Image(
-            painter = painterResource(data.postedPhoto),
-            "",
-            modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+        Icon(
+            modifier = Modifier
+                .size(24.dp),
+            imageVector = Icons.Default.MoreVert,
+            contentDescription = "more"
         )
-        Row() {
+
+    }
+}
+
+@Composable
+fun PostInteraction() {
+    Row(
+        modifier = Modifier.fillMaxWidth()
+            .padding(start = 12.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Icon(
+                modifier = Modifier
+                    .size(24.dp),
+                imageVector = Icons.Default.FavoriteBorder,
+                contentDescription = "like"
+            )
+            Icon(
+                modifier = Modifier
+                    .size(24.dp),
+                imageVector = Icons.Default.ChatBubbleOutline,
+                contentDescription = "comment"
+            )
+            Icon(
+                modifier = Modifier
+                    .size(24.dp),
+                imageVector = Icons.Default.Send,
+                contentDescription = "share"
+            )
+        }
+        Icon(
+            modifier = Modifier
+                .size(24.dp),
+            imageVector = Icons.Default.BookmarkBorder,
+            contentDescription = "like"
+        )
+    }
+}
+
+@Composable
+fun Description(data: Post) {
+    Column(modifier = Modifier.padding(bottom = 8.dp)) {
+        Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
             Icon(
                 modifier = Modifier
                     .size(20.dp)
@@ -106,7 +174,7 @@ fun PostPublished(data: Post) {
             )
             Text("${data.likes} likes")
         }
-        Row() {
+        Row(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
             Text(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(end = 8.dp),
@@ -117,7 +185,8 @@ fun PostPublished(data: Post) {
         Text(
             text = data.publishedDate,
             color = Color.DarkGray,
-            fontSize = 14.sp
+            fontSize = 14.sp,
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp)
         )
     }
 }
