@@ -7,7 +7,7 @@ data class Post(
     val comments: List<String>? = null,
     val description: String = "",
     val profilePic: String = "",
-    val postedPhoto: String = "",
+    val postedPhoto: List<String> = arrayListOf(),
     val location: String? = null,
     val publishedDate: String = "",
 )

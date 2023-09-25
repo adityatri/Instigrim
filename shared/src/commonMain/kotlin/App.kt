@@ -1,14 +1,25 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -23,7 +34,9 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -33,7 +46,6 @@ import model.Post
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun App() {
     MaterialTheme {
@@ -76,15 +88,18 @@ fun PostPublished(data: Post) {
         horizontalAlignment = Alignment.Start,
     ) {
         Username(data.username, data.isVerified)
-        Image(
-            painter = painterResource(data.postedPhoto),
-            "",
-            modifier = Modifier
-                .padding(top = 4.dp, bottom = 4.dp)
-                .fillMaxWidth(),
-            contentScale = ContentScale.FillWidth
-        )
-        PostInteraction()
+        if (data.postedPhoto.size > 1) {
+            ImageSlider(data.postedPhoto)
+        } else {
+            Image(
+                painter = painterResource(data.postedPhoto[0]),
+                "",
+                modifier = Modifier
+                    .fillMaxWidth(),
+                contentScale = ContentScale.FillWidth
+            )
+            PostInteraction()
+        }
         Description(data)
     }
 }
@@ -93,11 +108,11 @@ fun PostPublished(data: Post) {
 fun Username(userName: String, isVerified: Boolean) {
     Row(
         modifier = Modifier.fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp),
+            .padding(start = 16.dp, end = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row() {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 fontWeight = FontWeight.Bold,
                 text = userName
@@ -109,8 +124,9 @@ fun Username(userName: String, isVerified: Boolean) {
                         .padding(start = 4.dp),
                     tint = Color.Blue,
                     imageVector = Icons.Rounded.CheckCircle,
-                    contentDescription = "verified"
-                )
+                    contentDescription = "verified",
+
+                    )
             }
         }
         Icon(
@@ -119,45 +135,117 @@ fun Username(userName: String, isVerified: Boolean) {
             imageVector = Icons.Default.MoreVert,
             contentDescription = "more"
         )
-
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
-fun PostInteraction() {
-    Row(
-        modifier = Modifier.fillMaxWidth()
-            .padding(start = 12.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
+fun ImageSlider(photos: List<String>) {
+    val images = arrayListOf<Painter>()
+    photos.map {
+        images.add(painterResource(it))
+    }
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        initialPageOffsetFraction = 0f
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            Icon(
+        photos.size
+    }
+    HorizontalPager(
+        pageSpacing = 0.dp,
+        state = pagerState,
+        modifier = Modifier.fillMaxWidth()
+    ) { page ->
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(contentAlignment = Alignment.BottomCenter) {
+                Image(
+                    painter = images[page],
+                    contentDescription = "x",
+                    contentScale = ContentScale.Inside,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+    }
+    PostInteraction(photos.size, pagerState)
+}
+
+@Composable
+fun ImageIndicator(imageCount: Int, pagerState: PagerState) {
+    Row(
+        Modifier
+            .height(40.dp)
+            .fillMaxSize(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        repeat(imageCount) { iteration ->
+            val color = if (pagerState.currentPage == iteration) Color.Blue else Color.LightGray
+            Box(
                 modifier = Modifier
-                    .size(24.dp),
-                imageVector = Icons.Default.FavoriteBorder,
-                contentDescription = "like"
-            )
-            Icon(
-                modifier = Modifier
-                    .size(24.dp),
-                imageVector = Icons.Default.ChatBubbleOutline,
-                contentDescription = "comment"
-            )
-            Icon(
-                modifier = Modifier
-                    .size(24.dp),
-                imageVector = Icons.Default.Send,
-                contentDescription = "share"
+                    .padding(2.dp)
+                    .clip(CircleShape)
+                    .background(color)
+                    .size(6.dp)
+
             )
         }
-        Icon(
-            modifier = Modifier
-                .size(24.dp),
-            imageVector = Icons.Default.BookmarkBorder,
-            contentDescription = "like"
-        )
     }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun PostInteraction(imageCount: Int = 0, pagerState: PagerState? = null) {
+    Box(contentAlignment = Alignment.BottomCenter) {
+        Row(
+            modifier = Modifier
+                .height(40.dp)
+                .fillMaxWidth()
+                .padding(start = 12.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Row(
+                modifier = Modifier.fillMaxHeight(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .size(24.dp),
+                    imageVector = Icons.Default.FavoriteBorder,
+                    contentDescription = "like"
+                )
+                Icon(
+                    modifier = Modifier
+                        .size(24.dp),
+                    imageVector = Icons.Default.ChatBubbleOutline,
+                    contentDescription = "comment"
+                )
+                Icon(
+                    modifier = Modifier
+                        .size(24.dp),
+                    imageVector = Icons.Default.Send,
+                    contentDescription = "share"
+                )
+            }
+            Icon(
+                modifier = Modifier
+                    .size(24.dp),
+                imageVector = Icons.Default.BookmarkBorder,
+                contentDescription = "like"
+            )
+        }
+        pagerState?.apply {
+            ImageIndicator(imageCount, pagerState)
+        }
+
+    }
+
 }
 
 @Composable
@@ -206,7 +294,11 @@ fun generateDummyData(): List<Post> {
             ),
             "Gr8 things are coming.",
             "",
-            "drawable/android_1.webp",
+            arrayListOf(
+                "drawable/android_1a.jpg",
+                "drawable/android_1b.jpg",
+                "drawable/android_1c.jpg"
+            ),
             publishedDate = "30 May"
         )
     )
@@ -219,7 +311,7 @@ fun generateDummyData(): List<Post> {
             arrayListOf("Thanks for sharing!", "Stunning!", "Awww the caption! ♥️", "🔥🔥"),
             "Share your favorite family memories using #TeamPixel",
             "",
-            "drawable/android_2.webp",
+            arrayListOf("drawable/android_1.webp"),
             publishedDate = "5 April"
         )
     )
@@ -232,7 +324,7 @@ fun generateDummyData(): List<Post> {
             comments = null,
             "Help me reach the most liked post in Instagram pleaseee...",
             "",
-            "drawable/android_3.webp",
+            arrayListOf("drawable/android_3.webp"),
             publishedDate = "3 August"
         )
     )
