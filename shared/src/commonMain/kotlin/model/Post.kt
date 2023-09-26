@@ -10,4 +10,5 @@ data class Post(
     val postedPhoto: List<String> = arrayListOf(),
     val location: String? = null,
     val publishedDate: String = "",
+    val isLiked: Boolean = false
 )

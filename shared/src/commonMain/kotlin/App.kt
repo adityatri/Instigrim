@@ -28,15 +28,24 @@ import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarDefaults.enterAlwaysScrollBehavior
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -55,41 +64,66 @@ fun App() {
 
 expect val billabongFontFamily: FontFamily
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Dashboard(userData: List<Post>) {
-    Column() {
-        Text(
-            "Instigrim",
-            fontFamily = billabongFontFamily,
-            fontWeight = FontWeight.Normal,
-            fontSize = 32.sp,
-            modifier = Modifier.padding(16.dp)
-        )
+    val scrollBehavior = enterAlwaysScrollBehavior(rememberTopAppBarState())
 
-        AnimatedVisibility(userData.isNotEmpty()) {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxSize(),
-                content = {
-                    items(userData) {
-                        PostPublished(it)
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        "Instigrim",
+                        fontFamily = billabongFontFamily,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 32.sp,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.White,
+                    scrolledContainerColor = Color.White
+                ),
+                actions = {
+                    IconButton(onClick = { }) {
+                        Icon(Icons.Filled.FavoriteBorder, "notification")
                     }
-                }
+                    IconButton(onClick = { }) {
+                        Icon(Icons.Filled.Message, "messages")
+                    }
+                },
+                scrollBehavior = scrollBehavior
             )
+        },
+        content = { innerPadding ->
+            AnimatedVisibility(userData.isNotEmpty()) {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier.fillMaxSize(),
+                    content = {
+                        items(userData) {
+                            PostPublished(it)
+                        }
+                    },
+                    contentPadding = innerPadding
+                )
+            }
         }
-    }
+    )
 }
 
-@OptIn(ExperimentalResourceApi::class)
+@OptIn(ExperimentalResourceApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun PostPublished(data: Post) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start,
     ) {
-        Username(data.username, data.isVerified)
+        Username(data)
         if (data.postedPhoto.size > 1) {
-            ImageSlider(data.postedPhoto)
+            ImageSlider(data)
         } else {
             Image(
                 painter = painterResource(data.postedPhoto[0]),
@@ -98,14 +132,15 @@ fun PostPublished(data: Post) {
                     .fillMaxWidth(),
                 contentScale = ContentScale.FillWidth
             )
-            PostInteraction()
+            PostInteraction(isLiked = data.isLiked)
         }
         Description(data)
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
-fun Username(userName: String, isVerified: Boolean) {
+fun Username(data: Post) {
     Row(
         modifier = Modifier.fillMaxWidth()
             .padding(start = 16.dp, end = 8.dp, bottom = 8.dp),
@@ -113,11 +148,20 @@ fun Username(userName: String, isVerified: Boolean) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                fontWeight = FontWeight.Bold,
-                text = userName
+            Image(
+                painter = painterResource(data.profilePic),
+                contentDescription = "avatar",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
             )
-            if (isVerified) {
+            Text(
+                modifier = Modifier.padding(start = 8.dp),
+                fontWeight = FontWeight.Bold,
+                text = data.username
+            )
+            if (data.isVerified) {
                 Icon(
                     modifier = Modifier
                         .size(20.dp)
@@ -138,18 +182,18 @@ fun Username(userName: String, isVerified: Boolean) {
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
+@OptIn(ExperimentalResourceApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun ImageSlider(photos: List<String>) {
+fun ImageSlider(data: Post) {
     val images = arrayListOf<Painter>()
-    photos.map {
+    data.postedPhoto.map {
         images.add(painterResource(it))
     }
     val pagerState = rememberPagerState(
         initialPage = 0,
         initialPageOffsetFraction = 0f
     ) {
-        photos.size
+        data.postedPhoto.size
     }
     HorizontalPager(
         pageSpacing = 0.dp,
@@ -171,9 +215,10 @@ fun ImageSlider(photos: List<String>) {
             }
         }
     }
-    PostInteraction(photos.size, pagerState)
+    PostInteraction(data.postedPhoto.size, pagerState, data.isLiked)
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ImageIndicator(imageCount: Int, pagerState: PagerState) {
     Row(
@@ -199,7 +244,7 @@ fun ImageIndicator(imageCount: Int, pagerState: PagerState) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PostInteraction(imageCount: Int = 0, pagerState: PagerState? = null) {
+fun PostInteraction(imageCount: Int = 0, pagerState: PagerState? = null, isLiked: Boolean = false) {
     Box(contentAlignment = Alignment.BottomCenter) {
         Row(
             modifier = Modifier
@@ -214,12 +259,22 @@ fun PostInteraction(imageCount: Int = 0, pagerState: PagerState? = null) {
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    modifier = Modifier
-                        .size(24.dp),
-                    imageVector = Icons.Default.FavoriteBorder,
-                    contentDescription = "like"
-                )
+                if (isLiked) {
+                    Icon(
+                        modifier = Modifier
+                            .size(24.dp),
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = "like",
+                        tint = Color.Red
+                    )
+                } else {
+                    Icon(
+                        modifier = Modifier
+                            .size(24.dp),
+                        imageVector = Icons.Default.FavoriteBorder,
+                        contentDescription = "like"
+                    )
+                }
                 Icon(
                     modifier = Modifier
                         .size(24.dp),
@@ -293,7 +348,7 @@ fun generateDummyData(): List<Post> {
                 "I'm still in love with Pixel 3."
             ),
             "Gr8 things are coming.",
-            "",
+            "drawable/pic_android.jpg",
             arrayListOf(
                 "drawable/android_1a.jpg",
                 "drawable/android_1b.jpg",
@@ -310,8 +365,8 @@ fun generateDummyData(): List<Post> {
             8713,
             arrayListOf("Thanks for sharing!", "Stunning!", "Awww the caption! ♥️", "🔥🔥"),
             "Share your favorite family memories using #TeamPixel",
-            "",
-            arrayListOf("drawable/android_1.webp"),
+            "drawable/pic_google.jpg",
+            arrayListOf("drawable/pixel_1.jpg"),
             publishedDate = "5 April"
         )
     )
@@ -322,10 +377,11 @@ fun generateDummyData(): List<Post> {
             false,
             9288271,
             comments = null,
-            "Help me reach the most liked post in Instagram pleaseee...",
-            "",
-            arrayListOf("drawable/android_3.webp"),
-            publishedDate = "3 August"
+            "Faith can move the mountains~",
+            "drawable/pic_john.jpg",
+            arrayListOf("drawable/john_1.jpg"),
+            publishedDate = "3 August",
+            isLiked = true
         )
     )
 
