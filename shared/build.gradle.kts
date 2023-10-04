@@ -23,12 +23,14 @@ kotlin {
             dependencies {
                 implementation(compose.runtime)
                 implementation(compose.foundation)
-                implementation(compose.material)
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
-                implementation("media.kamel:kamel-image:0.6.0")
                 implementation(compose.materialIconsExtended)
                 implementation(compose.material3)
+                implementation(compose.material)
+                implementation("media.kamel:kamel-image:0.7.3")
+                implementation("com.chrynan.navigation:navigation-core:0.10.0")
+                implementation("com.chrynan.navigation:navigation-compose:0.10.0")
             }
         }
         val androidMain by getting {

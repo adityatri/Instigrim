@@ -6,3 +6,12 @@ plugins {
     id("com.android.library").apply(false)
     id("org.jetbrains.compose").apply(false)
 }
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = uri("https://repo.repsy.io/mvn/chrynan/public") }
+        maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
+    }
+}
