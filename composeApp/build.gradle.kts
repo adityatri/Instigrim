@@ -1,5 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
@@ -47,10 +45,15 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-
+            implementation(compose.materialIconsExtended)
+            implementation(compose.material3)
+            implementation(libs.kotlinx.serialization.json)
+            // firebase firestore
             implementation(libs.firebase.firestore)
             implementation(libs.firebase.common)
-            implementation(libs.kotlinx.serialization.json)
+            // bottom navigation
+            implementation(libs.navigation.core)
+            implementation(libs.navigation.compose)
         }
     }
 }
