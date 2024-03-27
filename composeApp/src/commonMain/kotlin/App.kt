@@ -1,65 +1,71 @@
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.ripple.LocalRippleTheme
+import androidx.compose.material.ripple.RippleAlpha
+import androidx.compose.material.ripple.RippleTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.firestore.firestore
-import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.painterResource
+import androidx.compose.ui.graphics.Color
+import com.chrynan.navigation.ExperimentalNavigationApi
+import com.chrynan.navigation.compose.NavigationContainer
+import com.chrynan.navigation.compose.rememberNavigator
+import com.chrynan.navigation.push
+import navigation.AppContext
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import ui.ExploreScreen
+import ui.HomeScreen
 
-import instigrim.composeapp.generated.resources.Res
-import instigrim.composeapp.generated.resources.compose_multiplatform
-
-@OptIn(ExperimentalResourceApi::class)
+@OptIn(ExperimentalNavigationApi::class)
 @Composable
 @Preview
 fun App() {
+    val navigator = rememberNavigator(initialDestination = AppContext.HOME)
+
     MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            var list by remember { mutableStateOf(listOf<Post>()) }
-            LaunchedEffect(Unit) {
-                list = getPosts()
+            Box(modifier = Modifier.weight(1f)) {
+                NavigationContainer(
+                    navigator = navigator,
+                    modifier = Modifier.fillMaxSize()
+                ) { (destination, _) ->
+                    when (destination) {
+                        AppContext.HOME -> HomeScreen()
+                        AppContext.EXPLORE -> ExploreScreen()
+                        AppContext.CREATE -> ExploreScreen()
+                        AppContext.REELS -> ExploreScreen()
+                        AppContext.PROFILE -> ExploreScreen()
+                    }
+
+                }
             }
-            LazyColumn {
-                items(list) {
-                    PostItem(it)
+            CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
+                BottomNavigation(backgroundColor = Color.White) {
+                    AppContext.entries.forEach {
+                        it.name
+                        BottomNavigationItem(
+                            selected = false,
+                            onClick = { navigator.push(it) },
+                            icon = { Image(imageVector = it.icon, contentDescription = null) }
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-suspend fun getPosts(): List<Post> {
-    val firebaseFirestore = Firebase.firestore
-    try {
-        val postResponse =
-            firebaseFirestore.collection("posts").get()
-        return postResponse.documents.map {
-            it.data()
-        }
-    } catch (e: Throwable) {
-        throw e
-    }
-}
+private object NoRippleTheme : RippleTheme {
+    @Composable
+    override fun defaultColor() = Color.Unspecified
 
-@Composable
-fun PostItem(post: Post) {
-    Column {
-        Text(
-            text = post.username
-        )
-        Text(
-            text = post.caption
-        )
-    }
+    @Composable
+    override fun rippleAlpha(): RippleAlpha = RippleAlpha(0.0f, 0.0f, 0.0f, 0.0f)
 }

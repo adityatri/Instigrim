@@ -19,6 +19,7 @@ firebaseCommonKtx = "20.3.3"
 google-service = "4.4.1"
 firebaseBom = "30.0.1"
 kotlinxSerializationJson = "1.5.1"
+navigationCore = "0.10.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -39,6 +40,8 @@ firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = 
 firebase-common = { module = "dev.gitlive:firebase-common", version.ref = "firebaseFirestore" }
 firebase-common-ktx = { module = "com.google.firebase:firebase-common-ktx", version.ref = "firebaseCommonKtx" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+navigation-compose = { module = "com.chrynan.navigation:navigation-compose", version.ref = "navigationCore" }
+navigation-core = { module = "com.chrynan.navigation:navigation-core", version.ref = "navigationCore" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
