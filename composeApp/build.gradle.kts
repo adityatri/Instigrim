@@ -2,11 +2,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
-
-    //google-service
     alias(libs.plugins.googleServices)
-
-    kotlin("plugin.serialization") version "1.9.0" // This lines
+    kotlin("plugin.serialization") version "1.9.0"
 }
 
 kotlin {
@@ -34,8 +31,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
-
-            //firebase
+            // firebase bom
             implementation(project.dependencies.platform(libs.firebase.bom))
         }
         commonMain.dependencies {
@@ -47,6 +43,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(compose.materialIconsExtended)
             implementation(compose.material3)
+            implementation(compose.components.resources)
             implementation(libs.kotlinx.serialization.json)
             // firebase firestore
             implementation(libs.firebase.firestore)

@@ -14,6 +14,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import com.chrynan.navigation.ExperimentalNavigationApi
 import com.chrynan.navigation.compose.NavigationContainer
 import com.chrynan.navigation.compose.rememberNavigator
@@ -69,3 +70,5 @@ private object NoRippleTheme : RippleTheme {
     @Composable
     override fun rippleAlpha(): RippleAlpha = RippleAlpha(0.0f, 0.0f, 0.0f, 0.0f)
 }
+
+expect val billabongFontFamily: FontFamily

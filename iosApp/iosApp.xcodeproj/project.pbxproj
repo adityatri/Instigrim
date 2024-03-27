@@ -38,6 +38,7 @@
 		4201956C2BB32B44009D7CFB /* FirebaseRemoteConfigSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 4201956B2BB32B44009D7CFB /* FirebaseRemoteConfigSwift */; };
 		4201956E2BB32B44009D7CFB /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 4201956D2BB32B44009D7CFB /* FirebaseStorage */; };
 		420195702BB32B44009D7CFB /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 4201956F2BB32B44009D7CFB /* FirebaseStorageCombine-Community */; };
+		4285E1922BB479DB004FDDD3 /* billabong.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4285E1912BB479DB004FDDD3 /* billabong.ttf */; };
 		7555FF83242A565900829871 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7555FF82242A565900829871 /* ContentView.swift */; };
 /* End PBXBuildFile section */
 
@@ -46,6 +47,7 @@
 		058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		2152FB032600AC8F00CF470E /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
 		420195382BB32A77009D7CFB /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		4285E1912BB479DB004FDDD3 /* billabong.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = billabong.ttf; path = ../../composeApp/build/intermediates/packaged_res/debug/font/billabong.ttf; sourceTree = "<group>"; };
 		7555FF7B242A565900829871 /* iosApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = iosApp.app; path = Instigrim.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7555FF82242A565900829871 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		7555FF8C242A565B00829871 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -126,6 +128,7 @@
 		7555FF7D242A565900829871 /* iosApp */ = {
 			isa = PBXGroup;
 			children = (
+				4285E1912BB479DB004FDDD3 /* billabong.ttf */,
 				420195382BB32A77009D7CFB /* GoogleService-Info.plist */,
 				058557BA273AAA24004C7B11 /* Assets.xcassets */,
 				7555FF82242A565900829871 /* ContentView.swift */,
@@ -238,6 +241,7 @@
 				058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */,
 				058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */,
 				420195392BB32A77009D7CFB /* GoogleService-Info.plist in Resources */,
+				4285E1922BB479DB004FDDD3 /* billabong.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
