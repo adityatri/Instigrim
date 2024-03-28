@@ -5,7 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,6 +16,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -93,18 +98,6 @@ suspend fun getPosts(): List<Post> {
     }
 }
 
-@Composable
-fun PostItem(post: Post) {
-    Column {
-        Text(
-            text = post.username
-        )
-        Text(
-            text = post.caption
-        )
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomTopAppBar(scrollBehavior: TopAppBarScrollBehavior) {
@@ -139,4 +132,49 @@ fun CustomTopAppBar(scrollBehavior: TopAppBarScrollBehavior) {
         },
         scrollBehavior = scrollBehavior
     )
+}
+
+
+@Composable
+fun PostItem(post: Post) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.Start,
+    ) {
+        Username(post)
+    }
+}
+
+@Composable
+fun Username(data: Post) {
+    Row(
+        modifier = Modifier.fillMaxWidth()
+            .padding(start = 16.dp, end = 8.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                modifier = Modifier.padding(start = 8.dp),
+                fontWeight = FontWeight.Bold,
+                text = data.username
+            )
+            if (data.isVerified) {
+                Icon(
+                    modifier = Modifier
+                        .size(20.dp)
+                        .padding(start = 4.dp),
+                    tint = Color.Blue,
+                    imageVector = Icons.Rounded.CheckCircle,
+                    contentDescription = "verified"
+                )
+            }
+        }
+        Icon(
+            modifier = Modifier
+                .size(24.dp),
+            imageVector = Icons.Default.MoreVert,
+            contentDescription = "more"
+        )
+    }
 }
