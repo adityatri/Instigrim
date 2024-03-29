@@ -1,6 +1,7 @@
 package ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,7 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -23,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -33,18 +38,26 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import billabongFontFamily
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.firestore.firestore
+import io.kamel.core.Resource
+import io.kamel.image.KamelImage
+import io.kamel.image.asyncPainterResource
+import kotlinx.coroutines.launch
 import model.Post
 
 @Composable
@@ -137,11 +150,37 @@ fun CustomTopAppBar(scrollBehavior: TopAppBarScrollBehavior) {
 
 @Composable
 fun PostItem(post: Post) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start,
     ) {
         Username(post)
+        if (post.imgPath.size > 1) {
+            ImageSlider(post)
+        } else {
+            val painterResource: Resource<Painter> = asyncPainterResource(
+                post.imgPath[0],
+                filterQuality = FilterQuality.High,
+            )
+            KamelImage(
+                resource = painterResource,
+                contentDescription = "",
+                contentScale = ContentScale.Inside,
+                modifier = Modifier.fillMaxSize(),
+                onLoading = { CircularProgressIndicator(it) },
+                onFailure = { exception: Throwable ->
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = exception.message.toString(),
+                            actionLabel = "Hide",
+                        )
+                    }
+                }
+            )
+        }
+        Description(post)
     }
 }
 
@@ -175,6 +214,79 @@ fun Username(data: Post) {
                 .size(24.dp),
             imageVector = Icons.Default.MoreVert,
             contentDescription = "more"
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ImageSlider(data: Post) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val images = arrayListOf<String>()
+    data.imgPath.map {
+        images.add(it)
+    }
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        initialPageOffsetFraction = 0f
+    ) {
+        data.imgPath.size
+    }
+    HorizontalPager(
+        pageSpacing = 0.dp,
+        state = pagerState,
+        modifier = Modifier.fillMaxWidth()
+    ) { page ->
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(contentAlignment = Alignment.BottomCenter) {
+                val painterResource: Resource<Painter> = asyncPainterResource(
+                    images[page],
+                    filterQuality = FilterQuality.High,
+                )
+                KamelImage(
+                    resource = painterResource,
+                    contentDescription = "",
+                    contentScale = ContentScale.Inside,
+                    modifier = Modifier.fillMaxSize(),
+                    onLoading = { CircularProgressIndicator(it) },
+                    onFailure = { exception: Throwable ->
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = exception.message.toString(),
+                                actionLabel = "Hide",
+                            )
+                        }
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun Description(data: Post) {
+    Column(modifier = Modifier.padding(bottom = 8.dp, start = 16.dp, end = 16.dp)) {
+        Text(
+            fontWeight = FontWeight.Bold,
+            text = "${data.likes} likes"
+        )
+        Row {
+            Text(
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(end = 8.dp),
+                text = data.username
+            )
+            Text(data.caption)
+        }
+        Text(
+            text = "10 minutes ago",
+            color = Color.DarkGray,
+            fontSize = 14.sp
         )
     }
 }
