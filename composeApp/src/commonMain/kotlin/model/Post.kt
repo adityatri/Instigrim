@@ -7,5 +7,6 @@ data class Post(
     val username: String,
     val caption: String,
     val isVerified: Boolean,
-    val likes: String
+    val likes: String,
+    val imgPath: List<String> = arrayListOf()
 )

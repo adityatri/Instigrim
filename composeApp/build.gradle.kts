@@ -33,6 +33,8 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             // firebase bom
             implementation(project.dependencies.platform(libs.firebase.bom))
+            // ktor
+            implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -51,6 +53,14 @@ kotlin {
             // bottom navigation
             implementation(libs.navigation.core)
             implementation(libs.navigation.compose)
+            // image loader
+            implementation(libs.kamel.image)
+            // ktor
+            implementation(libs.ktor.client.core)
+        }
+        iosMain.dependencies {
+            // ktor
+            implementation(libs.ktor.client.darwin)
         }
     }
 }
