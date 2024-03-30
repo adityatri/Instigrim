@@ -48,7 +48,10 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import billabongFontFamily
@@ -275,18 +278,20 @@ fun Description(data: Post) {
             fontWeight = FontWeight.Bold,
             text = "${data.likes} likes"
         )
-        Row {
-            Text(
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(end = 8.dp),
-                text = data.username
-            )
-            Text(data.caption)
-        }
+        Text(
+            buildAnnotatedString {
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(data.username)
+                }
+                if (data.caption.isNotEmpty()) {
+                    append(" ${data.caption}")
+                }
+            }
+        )
         Text(
             text = "10 minutes ago",
-            color = Color.DarkGray,
-            fontSize = 14.sp
+            color = Color.Gray,
+            fontSize = 13.sp
         )
     }
 }
