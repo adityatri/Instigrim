@@ -7,20 +7,27 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Send
+import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.ChatBubbleOutline
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.ModeComment
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -151,39 +158,21 @@ fun CustomTopAppBar(scrollBehavior: TopAppBarScrollBehavior) {
 }
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PostItem(post: Post) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+fun PostItem(data: Post) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start,
     ) {
-        Username(post)
-        if (post.imgPath.size > 1) {
-            ImageSlider(post)
+        Username(data)
+        if (data.imgPath.size > 1) {
+            ImageSlider(data)
         } else {
-            val painterResource: Resource<Painter> = asyncPainterResource(
-                post.imgPath[0],
-                filterQuality = FilterQuality.High,
-            )
-            KamelImage(
-                resource = painterResource,
-                contentDescription = "",
-                contentScale = ContentScale.Inside,
-                modifier = Modifier.fillMaxSize(),
-                onLoading = { CircularProgressIndicator(it) },
-                onFailure = { exception: Throwable ->
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = exception.message.toString(),
-                            actionLabel = "Hide",
-                        )
-                    }
-                }
-            )
+            Photo(data.imgPath[0])
+            PostInteraction(isLiked = data.isLiked)
         }
-        Description(post)
+        Description(data)
     }
 }
 
@@ -197,7 +186,9 @@ fun Username(data: Post) {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                modifier = Modifier.padding(start = 8.dp),
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .fillMaxHeight(),
                 fontWeight = FontWeight.Bold,
                 text = data.username
             )
@@ -205,7 +196,8 @@ fun Username(data: Post) {
                 Icon(
                     modifier = Modifier
                         .size(20.dp)
-                        .padding(start = 4.dp),
+                        .padding(start = 4.dp)
+                        .fillMaxHeight(),
                     tint = Color.Blue,
                     imageVector = Icons.Rounded.CheckCircle,
                     contentDescription = "verified"
@@ -224,8 +216,6 @@ fun Username(data: Post) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ImageSlider(data: Post) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
     val images = arrayListOf<String>()
     data.imgPath.map {
         images.add(it)
@@ -247,28 +237,36 @@ fun ImageSlider(data: Post) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(contentAlignment = Alignment.BottomCenter) {
-                val painterResource: Resource<Painter> = asyncPainterResource(
-                    images[page],
-                    filterQuality = FilterQuality.High,
-                )
-                KamelImage(
-                    resource = painterResource,
-                    contentDescription = "",
-                    contentScale = ContentScale.Inside,
-                    modifier = Modifier.fillMaxSize(),
-                    onLoading = { CircularProgressIndicator(it) },
-                    onFailure = { exception: Throwable ->
-                        scope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = exception.message.toString(),
-                                actionLabel = "Hide",
-                            )
-                        }
-                    },
-                )
+                Photo(images[page])
             }
         }
     }
+    PostInteraction(data.imgPath.size, pagerState, data.isLiked)
+}
+
+@Composable
+fun Photo(imageUrl: String) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val painterResource: Resource<Painter> = asyncPainterResource(
+        imageUrl,
+        filterQuality = FilterQuality.High,
+    )
+    KamelImage(
+        resource = painterResource,
+        contentDescription = "",
+        contentScale = ContentScale.Inside,
+        modifier = Modifier.fillMaxSize(),
+        onLoading = { CircularProgressIndicator(it) },
+        onFailure = { exception: Throwable ->
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = exception.message.toString(),
+                    actionLabel = "Hide",
+                )
+            }
+        }
+    )
 }
 
 @Composable
@@ -293,5 +291,87 @@ fun Description(data: Post) {
             color = Color.Gray,
             fontSize = 13.sp
         )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun PostInteraction(imageCount: Int = 0, pagerState: PagerState? = null, isLiked: Boolean = false) {
+    Box(contentAlignment = Alignment.BottomCenter) {
+        Row(
+            modifier = Modifier
+                .height(40.dp)
+                .fillMaxWidth()
+                .padding(start = 12.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Row(
+                modifier = Modifier.fillMaxHeight(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (isLiked) {
+                    Icon(
+                        modifier = Modifier
+                            .size(24.dp),
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = "like",
+                        tint = Color.Red
+                    )
+                } else {
+                    Icon(
+                        modifier = Modifier
+                            .size(24.dp),
+                        imageVector = Icons.Default.FavoriteBorder,
+                        contentDescription = "like"
+                    )
+                }
+                Icon(
+                    modifier = Modifier
+                        .size(24.dp),
+                    imageVector = Icons.Outlined.ModeComment,
+                    contentDescription = "comment"
+                )
+                Icon(
+                    modifier = Modifier
+                        .size(24.dp),
+                    imageVector = Icons.AutoMirrored.Outlined.Send,
+                    contentDescription = "share"
+                )
+            }
+            Icon(
+                modifier = Modifier
+                    .size(24.dp),
+                imageVector = Icons.Default.BookmarkBorder,
+                contentDescription = "like"
+            )
+        }
+        pagerState?.apply {
+            ImageIndicator(imageCount, pagerState)
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ImageIndicator(imageCount: Int, pagerState: PagerState) {
+    Row(
+        Modifier
+            .height(40.dp)
+            .fillMaxSize(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        repeat(imageCount) { iteration ->
+            val color = if (pagerState.currentPage == iteration) Color.Blue else Color.LightGray
+            Box(
+                modifier = Modifier
+                    .padding(2.dp)
+                    .clip(CircleShape)
+                    .background(color)
+                    .size(6.dp)
+            )
+        }
     }
 }
