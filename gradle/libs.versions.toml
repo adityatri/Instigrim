@@ -12,6 +12,7 @@ androidx-material = "1.11.0"
 androidx-test-junit = "1.1.5"
 compose = "1.6.2"
 compose-plugin = "1.6.0"
+flexibleBottomsheetMaterial3 = "0.1.2"
 junit = "4.13.2"
 kamelImage = "0.9.3"
 kotlin = "1.9.22"
@@ -24,6 +25,7 @@ navigationCore = "0.10.0"
 ktor = "2.3.9"
 
 [libraries]
+flexible-bottomsheet-material3 = { module = "com.github.skydoves:flexible-bottomsheet-material3", version.ref = "flexibleBottomsheetMaterial3" }
 kamel-image = { module = "media.kamel:kamel-image", version.ref = "kamelImage" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }

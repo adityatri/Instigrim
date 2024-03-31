@@ -11,6 +11,7 @@ import androidx.compose.material.ripple.RippleTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,10 +20,14 @@ import com.chrynan.navigation.ExperimentalNavigationApi
 import com.chrynan.navigation.compose.NavigationContainer
 import com.chrynan.navigation.compose.rememberNavigator
 import com.chrynan.navigation.push
+import component.BottomSheetComments
 import navigation.AppContext
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ui.ExploreScreen
 import ui.HomeScreen
+
+val shouldShowBottomSheet = mutableStateOf(false)
+val selectedComment = mutableStateOf<List<String>>(arrayListOf())
 
 @OptIn(ExperimentalNavigationApi::class)
 @Composable
@@ -57,6 +62,17 @@ fun App() {
                             icon = { Image(imageVector = it.icon, contentDescription = null) }
                         )
                     }
+                }
+            }
+
+            /*
+            When putting the BottomSheet inside of other child component, somehow it's buggy in iOS, while it's working perfectly in Android.
+            In iOS, the bottom sheet won't appear from the bottom of the screen, instead it will reflect on the bottom of each "PostItem".
+            Solution: move the BottomSheet to root component here, and use a mutableState variable to show/hide it.
+             */
+            if (shouldShowBottomSheet.value) {
+                BottomSheetComments(selectedComment.value) {
+                    shouldShowBottomSheet.value = !shouldShowBottomSheet.value
                 }
             }
         }

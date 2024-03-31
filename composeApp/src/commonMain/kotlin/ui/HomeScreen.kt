@@ -19,6 +19,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
@@ -55,7 +56,9 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
@@ -69,6 +72,8 @@ import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.launch
 import model.Post
+import selectedComment
+import shouldShowBottomSheet
 
 @Composable
 fun HomeScreen() {
@@ -314,6 +319,21 @@ fun Description(data: Post) {
                 }
             }
         )
+        if (data.comments.isNotEmpty()) {
+            ClickableText(
+                text = AnnotatedString("View all ${data.comments.size} comments"),
+                style = TextStyle(
+                    color = Color.Gray
+                ),
+                modifier = Modifier.padding(top = 4.dp),
+                onClick = {
+                    shouldShowBottomSheet.value = !shouldShowBottomSheet.value
+                    selectedComment.value = data.comments
+                }
+            )
+        } else {
+
+        }
         Text(
             text = "10 minutes ago",
             color = Color.Gray,
@@ -355,12 +375,16 @@ fun PostInteraction(imageCount: Int = 0, pagerState: PagerState? = null, isLiked
                         contentDescription = "like"
                     )
                 }
-                Icon(
-                    modifier = Modifier
-                        .size(24.dp),
-                    imageVector = Icons.Outlined.ModeComment,
-                    contentDescription = "comment"
-                )
+                IconButton(onClick = {
+                    shouldShowBottomSheet.value = !shouldShowBottomSheet.value
+                }) {
+                    Icon(
+                        modifier = Modifier
+                            .size(24.dp),
+                        imageVector = Icons.Outlined.ModeComment,
+                        contentDescription = "comment",
+                    )
+                }
                 Icon(
                     modifier = Modifier
                         .size(24.dp),

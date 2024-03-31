@@ -57,6 +57,8 @@ kotlin {
             implementation(libs.kamel.image)
             // ktor
             implementation(libs.ktor.client.core)
+            // bottom sheet
+            implementation(libs.flexible.bottomsheet.material3)
         }
         iosMain.dependencies {
             // ktor
