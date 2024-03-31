@@ -97,7 +97,12 @@ fun Dashboard(userData: List<Post>) {
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.fillMaxSize(),
                     content = {
-                        items(userData) {
+                        items(
+                            items = userData,
+                            key = {
+                                it.id
+                            }
+                        ) {
                             PostItem(it)
                         }
                     },
@@ -185,6 +190,18 @@ fun Username(data: Post) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
+            val painterResource: Resource<Painter> = asyncPainterResource(
+                data.profilePic,
+                filterQuality = FilterQuality.Low,
+            )
+            KamelImage(
+                resource = painterResource,
+                contentDescription = "Profile picture",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape),
+            )
             Text(
                 modifier = Modifier
                     .padding(start = 8.dp)
@@ -250,13 +267,13 @@ fun Photo(imageUrl: String) {
     val scope = rememberCoroutineScope()
     val painterResource: Resource<Painter> = asyncPainterResource(
         imageUrl,
-        filterQuality = FilterQuality.High,
+        filterQuality = FilterQuality.Medium,
     )
     KamelImage(
         resource = painterResource,
         contentDescription = "",
-        contentScale = ContentScale.Inside,
-        modifier = Modifier.fillMaxSize(),
+        contentScale = ContentScale.Crop,
+        modifier = Modifier.fillMaxWidth(),
         onLoading = { CircularProgressIndicator(it) },
         onFailure = { exception: Throwable ->
             scope.launch {
