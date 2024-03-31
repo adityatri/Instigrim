@@ -299,7 +299,18 @@ fun Description(data: Post) {
                     append(data.username)
                 }
                 if (data.caption.isNotEmpty()) {
-                    append(" ${data.caption}")
+                    val captionText = data.caption.replace("\\n", "\n").substringBefore('#')
+                    append(" $captionText")
+
+                    // assume that hashtag will always be on the end of the caption
+                    // TODO: to improve this logic for changing hashtag color
+                    val hashtagIndex = data.caption.indexOf('#')
+                    if (hashtagIndex > 0) {
+                        val listOfHashtag = data.caption.substring(hashtagIndex)
+                        withStyle(style = SpanStyle(color = Color(0xff00008B))) {
+                            append(listOfHashtag)
+                        }
+                    }
                 }
             }
         )
