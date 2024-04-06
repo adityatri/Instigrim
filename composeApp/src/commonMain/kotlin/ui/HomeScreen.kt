@@ -65,14 +65,17 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import billabongFontFamily
+import component.ProfilePicture
+import creatorProfilePic
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.firestore.firestore
+import hasComment
 import io.kamel.core.Resource
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.launch
 import model.Post
-import selectedComment
+import selectedCommentId
 import shouldShowBottomSheet
 
 @Composable
@@ -180,7 +183,7 @@ fun PostItem(data: Post) {
             ImageSlider(data)
         } else {
             Photo(data.imgPath[0])
-            PostInteraction(isLiked = data.isLiked)
+            PostInteraction(isLiked = data.isLiked, isCommentExist = data.commentCount > 0)
         }
         Description(data)
     }
@@ -195,18 +198,7 @@ fun Username(data: Post) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            val painterResource: Resource<Painter> = asyncPainterResource(
-                data.profilePic,
-                filterQuality = FilterQuality.Low,
-            )
-            KamelImage(
-                resource = painterResource,
-                contentDescription = "Profile picture",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape),
-            )
+            ProfilePicture(data.profilePic)
             Text(
                 modifier = Modifier
                     .padding(start = 8.dp)
@@ -263,7 +255,7 @@ fun ImageSlider(data: Post) {
             }
         }
     }
-    PostInteraction(data.imgPath.size, pagerState, data.isLiked)
+    PostInteraction(data.imgPath.size, pagerState, data.isLiked, data.commentCount > 0)
 }
 
 @Composable
@@ -319,20 +311,34 @@ fun Description(data: Post) {
                 }
             }
         )
-        if (data.comments.isNotEmpty()) {
+        if (data.commentCount > 0) {
             ClickableText(
-                text = AnnotatedString("View all ${data.comments.size} comments"),
+                text = AnnotatedString("View all ${data.commentCount} comments"),
                 style = TextStyle(
                     color = Color.Gray
                 ),
                 modifier = Modifier.padding(top = 4.dp),
                 onClick = {
                     shouldShowBottomSheet.value = !shouldShowBottomSheet.value
-                    selectedComment.value = data.comments
+                    hasComment.value = true
+                    creatorProfilePic.value = data.profilePic
+                    selectedCommentId.value =
+                        "T9CKeJfGecJo8YpLKl8t"    // hardcoded, as @DocumentId is not supported yet
                 }
             )
         } else {
+            Row {
+                ClickableText(
+                    text = AnnotatedString("Add a comment..."),
+                    style = TextStyle(
+                        color = Color.Gray
+                    ),
+                    modifier = Modifier.padding(top = 4.dp),
+                    onClick = {
 
+                    }
+                )
+            }
         }
         Text(
             text = "10 minutes ago",
@@ -344,7 +350,12 @@ fun Description(data: Post) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PostInteraction(imageCount: Int = 0, pagerState: PagerState? = null, isLiked: Boolean = false) {
+fun PostInteraction(
+    imageCount: Int = 0,
+    pagerState: PagerState? = null,
+    isLiked: Boolean = false,
+    isCommentExist: Boolean
+) {
     Box(contentAlignment = Alignment.BottomCenter) {
         Row(
             modifier = Modifier
@@ -377,6 +388,7 @@ fun PostInteraction(imageCount: Int = 0, pagerState: PagerState? = null, isLiked
                 }
                 IconButton(onClick = {
                     shouldShowBottomSheet.value = !shouldShowBottomSheet.value
+                    hasComment.value = isCommentExist
                 }) {
                     Icon(
                         modifier = Modifier

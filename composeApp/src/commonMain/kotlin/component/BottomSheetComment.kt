@@ -3,15 +3,25 @@ package component
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Divider
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,22 +39,32 @@ import com.skydoves.flexible.bottomsheet.material3.FlexibleBottomSheet
 import com.skydoves.flexible.core.FlexibleSheetSize
 import com.skydoves.flexible.core.FlexibleSheetValue
 import com.skydoves.flexible.core.rememberFlexibleBottomSheetState
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.firestore.firestore
+import model.Comment
 import util.screenHeight
 
+private var creatorPic: String = ""
 
 @Composable
-fun BottomSheetComments(comments: List<String>, onDismissRequest: () -> Unit) {
+fun BottomSheetComments(
+    selectedCommentId: String,
+    hasComment: Boolean,
+    creatorProfilePic: String,
+    onDismissRequest: () -> Unit
+) {
     var currentSheetTarget by remember {
         mutableStateOf(FlexibleSheetValue.IntermediatelyExpanded)
     }
     val isSkipSlightlyExpanded: Boolean
     val sheetSize: FlexibleSheetSize
 
-    if (comments.isEmpty()) {
+    if (hasComment) {
         sheetSize = FlexibleSheetSize(
             fullyExpanded = fullyExpandedValueByPlatform
         )
         isSkipSlightlyExpanded = true
+        creatorPic = creatorProfilePic
     } else {
         sheetSize = FlexibleSheetSize(
             fullyExpanded = fullyExpandedValueByPlatform,
@@ -84,12 +104,23 @@ fun BottomSheetComments(comments: List<String>, onDismissRequest: () -> Unit) {
         },
         modifier = Modifier.fillMaxSize(),
     ) {
-        BottomSheetContent(comments, expectedSheetSize)
+        var list by remember { mutableStateOf(listOf<Comment>()) }
+        if (hasComment) {
+            LaunchedEffect(Unit) {
+                list = getComments(selectedCommentId)
+            }
+        }
+
+        BottomSheetContent(list, expectedSheetSize, creatorProfilePic)
     }
 }
 
 @Composable
-private fun BottomSheetContent(data: List<String> = arrayListOf(), currentSheetSize: Dp) {
+private fun BottomSheetContent(
+    data: List<Comment> = arrayListOf(),
+    currentSheetSize: Dp,
+    creatorProfilePic: String
+) {
     Column {
         Text(
             modifier = Modifier
@@ -105,9 +136,17 @@ private fun BottomSheetContent(data: List<String> = arrayListOf(), currentSheetS
             thickness = 1.dp
         )
         if (data.isNotEmpty()) {
-            LazyColumn {
-                // TODO: show list of comments
-            }
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxSize(),
+                content = {
+                    items(
+                        items = data
+                    ) {
+                        CommentItem(it)
+                    }
+                }
+            )
         } else {
             Box(
                 modifier = Modifier
@@ -139,8 +178,84 @@ private fun BottomSheetContent(data: List<String> = arrayListOf(), currentSheetS
 }
 
 @Composable
-private fun CommentItem(data: String) {
+private fun CommentItem(data: Comment) {
+    Row(
+        modifier = Modifier.padding(
+            top = 8.dp,
+            start = 8.dp,
+            end = 16.dp
+        )
+    ) {
+        ProfilePicture(data.profilePic, modifier = Modifier.padding(8.dp))
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier.weight(1f).padding(end = 8.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.height(IntrinsicSize.Min)
+            ) {
+                Text(
+                    text = data.username,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.fillMaxHeight()
+                )
+                if (data.isLikedByCreator) {
+                    Row(
+                        modifier = Modifier
+                            .padding(start = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .size(16.dp),
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = "like",
+                            tint = Color.Red
+                        )
+                        ProfilePicture(creatorPic, smallPic = true)
+                    }
+                }
+            }
+            Text(
+                text = data.userComment
+            )
+        }
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .weight(0.15f)
+                .padding(top = 8.dp)
+        ) {
+            Icon(
+                modifier = Modifier
+                    .size(20.dp),
+                imageVector = Icons.Default.FavoriteBorder,
+                contentDescription = "like",
+            )
+            if (data.likes > 0) {
+                Text(text = data.likes.toString())
+            }
+        }
+    }
+}
 
+suspend fun getComments(documentId: String): List<Comment> {
+    val firebaseFirestore = Firebase.firestore
+    try {
+        val comments = firebaseFirestore
+            .collection("posts")
+            .document(documentId)
+            .collection("comments")
+            .get()
+        return comments.documents.map {
+            it.data()
+        }
+    } catch (e: Throwable) {
+        throw e
+    }
 }
 
 /*

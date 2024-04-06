@@ -27,7 +27,9 @@ import ui.ExploreScreen
 import ui.HomeScreen
 
 val shouldShowBottomSheet = mutableStateOf(false)
-val selectedComment = mutableStateOf<List<String>>(arrayListOf())
+val selectedCommentId = mutableStateOf("")
+val hasComment = mutableStateOf(false)
+val creatorProfilePic = mutableStateOf("")
 
 @OptIn(ExperimentalNavigationApi::class)
 @Composable
@@ -68,10 +70,14 @@ fun App() {
             /*
             When putting the BottomSheet inside of other child component, somehow it's buggy in iOS, while it's working perfectly in Android.
             In iOS, the bottom sheet won't appear from the bottom of the screen, instead it will reflect on the bottom of each "PostItem".
-            Solution: move the BottomSheet to root component here, and use a mutableState variable to show/hide it.
+            Solution: move the BottomSheet to root component here, and use a mutableState variable to update it.
              */
             if (shouldShowBottomSheet.value) {
-                BottomSheetComments(selectedComment.value) {
+                BottomSheetComments(
+                    selectedCommentId.value,
+                    hasComment.value,
+                    creatorProfilePic.value
+                ) {
                     shouldShowBottomSheet.value = !shouldShowBottomSheet.value
                 }
             }
