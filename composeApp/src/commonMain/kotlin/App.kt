@@ -2,6 +2,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
@@ -17,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
@@ -43,11 +46,18 @@ fun App() {
                 TabNavigator(HomeTab) {
                     Scaffold(
                         content = {
-                            CurrentTab()
+                            Box(
+                                modifier = Modifier.padding(bottom = it.calculateBottomPadding())
+                            ) {
+                                CurrentTab()
+                            }
                         },
                         bottomBar = {
                             CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
-                                BottomNavigation(backgroundColor = Color.White) {
+                                BottomNavigation(
+                                    backgroundColor = Color.White,
+                                    elevation = 8.dp
+                                ) {
                                     TabNavigationItem(HomeTab)
                                     TabNavigationItem(ExploreTab)
                                     TabNavigationItem(CreateTab)
@@ -87,7 +97,24 @@ private fun RowScope.TabNavigationItem(tab: Tab) {
         onClick = { tabNavigator.current = tab },
         icon = {
             tab.options.icon?.let { painter ->
-                Icon(painter, contentDescription = tab.options.title)
+                /*
+                Bottom nav using an image for Profile icon, hence need to set the tint as Color.Unspecified
+                Otherwise, the image won't be displayed properly as it's overlapped with the default tint color
+                 */
+                if (tab.options.title.equals("Profile", true)) {
+                    Icon(
+                        painter,
+                        contentDescription = tab.options.title,
+                        modifier = Modifier.size(32.dp),
+                        tint = Color.Unspecified
+                    )
+                } else {
+                    Icon(
+                        painter,
+                        contentDescription = tab.options.title,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
             }
         }
     )

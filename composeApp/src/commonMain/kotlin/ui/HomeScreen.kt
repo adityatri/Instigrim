@@ -66,6 +66,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import billabongFontFamily
 import component.ProfilePicture
+import component.Stories
 import creatorProfilePic
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.firestore.firestore
@@ -75,23 +76,26 @@ import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.launch
 import model.Post
+import model.Story
 import selectedCommentId
 import shouldShowBottomSheet
 
 @Composable
 fun HomeScreen() {
-    var list by remember { mutableStateOf(listOf<Post>()) }
+    var posts by remember { mutableStateOf(listOf<Post>()) }
+    var stories by remember { mutableStateOf(listOf<Story>()) }
     LaunchedEffect(Unit) {
-        list = getPosts()
+        posts = getPosts()
+        stories = getStories()
     }
     MaterialTheme {
-        Dashboard(list)
+        Dashboard(posts, stories)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Dashboard(userData: List<Post>) {
+fun Dashboard(posts: List<Post>, stories: List<Story>) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
     Scaffold(
@@ -100,13 +104,16 @@ fun Dashboard(userData: List<Post>) {
             CustomTopAppBar(scrollBehavior = scrollBehavior)
         },
         content = { innerPadding ->
-            AnimatedVisibility(userData.isNotEmpty()) {
+            AnimatedVisibility(posts.isNotEmpty()) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.fillMaxSize(),
                     content = {
+                        item {
+                            Stories(stories)
+                        }
                         items(
-                            items = userData,
+                            items = posts,
                             key = {
                                 it.id
                             }
@@ -119,19 +126,6 @@ fun Dashboard(userData: List<Post>) {
             }
         }
     )
-}
-
-suspend fun getPosts(): List<Post> {
-    val firebaseFirestore = Firebase.firestore
-    try {
-        val postResponse =
-            firebaseFirestore.collection("posts").get()
-        return postResponse.documents.map {
-            it.data()
-        }
-    } catch (e: Throwable) {
-        throw e
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -176,7 +170,7 @@ fun CustomTopAppBar(scrollBehavior: TopAppBarScrollBehavior) {
 fun PostItem(data: Post) {
     Column(
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Start,
+        horizontalAlignment = Alignment.Start
     ) {
         Username(data)
         if (data.imgPath.size > 1) {
@@ -198,7 +192,7 @@ fun Username(data: Post) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            ProfilePicture(data.profilePic)
+            ProfilePicture(data.profilePic, isStoryAvailable = data.isStoryAvailable)
             Text(
                 modifier = Modifier
                     .padding(start = 8.dp)
@@ -437,5 +431,34 @@ fun ImageIndicator(imageCount: Int, pagerState: PagerState) {
                     .size(6.dp)
             )
         }
+    }
+}
+
+
+// suspend function
+
+suspend fun getPosts(): List<Post> {
+    val firebaseFirestore = Firebase.firestore
+    try {
+        val postResponse =
+            firebaseFirestore.collection("posts").get()
+        return postResponse.documents.map {
+            it.data()
+        }
+    } catch (e: Throwable) {
+        throw e
+    }
+}
+
+suspend fun getStories(): List<Story> {
+    val firebaseFirestore = Firebase.firestore
+    try {
+        val postResponse =
+            firebaseFirestore.collection("stories").get()
+        return postResponse.documents.map {
+            it.data()
+        }
+    } catch (e: Throwable) {
+        throw e
     }
 }
