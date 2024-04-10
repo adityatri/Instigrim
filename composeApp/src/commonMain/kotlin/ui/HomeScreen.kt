@@ -6,12 +6,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,7 +32,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.ModeComment
-import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Verified
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -62,6 +65,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import billabongFontFamily
@@ -137,7 +141,7 @@ fun CustomTopAppBar(scrollBehavior: TopAppBarScrollBehavior) {
                 "Instigrim",
                 fontFamily = billabongFontFamily,
                 fontWeight = FontWeight.Normal,
-                fontSize = 32.sp
+                fontSize = 36.sp
             )
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -157,7 +161,35 @@ fun CustomTopAppBar(scrollBehavior: TopAppBarScrollBehavior) {
                 }
             }
             IconButton(onClick = { }) {
-                Icon(Icons.Filled.ChatBubbleOutline, "messages")
+                Box(
+                    contentAlignment = Alignment.TopEnd,
+                    modifier = Modifier
+                        .padding(end = 4.dp)
+                ) {
+                    Icon(Icons.Filled.ChatBubbleOutline, "messages")
+                    Box(
+                        modifier = Modifier
+                            .offset(x = 6.dp, y = (-5).dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .background(Color.Red)
+                                .size(18.dp)
+                                .requiredHeight(IntrinsicSize.Min)
+                                .offset(x = msgNotifOffsetX, y = msgNotifOffsetY),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "4",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
             }
         },
         scrollBehavior = scrollBehavior
@@ -186,8 +218,9 @@ fun PostItem(data: Post) {
 @Composable
 fun Username(data: Post) {
     Row(
-        modifier = Modifier.fillMaxWidth()
-            .padding(start = 16.dp, end = 8.dp, bottom = 8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -206,8 +239,8 @@ fun Username(data: Post) {
                         .size(20.dp)
                         .padding(start = 4.dp)
                         .fillMaxHeight(),
-                    tint = Color.Blue,
-                    imageVector = Icons.Rounded.CheckCircle,
+                    tint = Color(0xff0694F1),
+                    imageVector = Icons.Rounded.Verified,
                     contentDescription = "verified"
                 )
             }
@@ -434,6 +467,8 @@ fun ImageIndicator(imageCount: Int, pagerState: PagerState) {
     }
 }
 
+expect val msgNotifOffsetX: Dp
+expect val msgNotifOffsetY: Dp
 
 // suspend function
 

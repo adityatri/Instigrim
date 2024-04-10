@@ -1,5 +1,6 @@
 package component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.kamel.core.Resource
@@ -43,7 +45,7 @@ fun Stories(data: List<Story>) {
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp)
             ) {
                 Box(contentAlignment = Alignment.BottomEnd) {
                     val painterResource: Resource<Painter> = asyncPainterResource(
@@ -60,21 +62,26 @@ fun Stories(data: List<Story>) {
                             contentDescription = "Profile picture",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
-                                .padding(start = 4.dp, end = 4.dp)
-                                .size(64.dp)
+                                .size(80.dp)
                                 .clip(CircleShape)
                         )
                     }
-                    Icon(
-                        Icons.Filled.AddCircle,
-                        "Add new story",
-
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background(Color.White)
+                    ) {
+                        Icon(
+                            Icons.Filled.AddCircle,
+                            "Add new story",
+                            modifier = Modifier.size(28.dp)
                         )
+                    }
                 }
                 Text(
                     text = "Your Story",
                     fontSize = 12.sp,
-                    modifier = Modifier.offset(y = (-4).dp)
+                    modifier = Modifier.offset(y = usernameOffsetY)
                 )
             }
         }
@@ -82,7 +89,7 @@ fun Stories(data: List<Story>) {
             items = data,
             itemContent = { item ->
                 StoryItem(item)
-            }
+            },
         )
     }
     Divider(
@@ -101,15 +108,14 @@ fun StoryItem(data: Story) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(top = 8.dp)
+        modifier = Modifier.padding(top = 8.dp, end = 16.dp)
     ) {
         KamelImage(
             resource = painterResource,
             contentDescription = "Profile picture",
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .padding(start = 4.dp, end = 4.dp)
-                .size(64.dp)
+                .size(80.dp)
                 .clip(CircleShape)
                 .border(
                     width = 2.dp,
@@ -129,7 +135,9 @@ fun StoryItem(data: Story) {
         Text(
             text = data.username,
             fontSize = 12.sp,
-            modifier = Modifier.offset(y = (-4).dp)
+            modifier = Modifier.offset(y = usernameOffsetY)
         )
     }
 }
+
+expect val usernameOffsetY: Dp
