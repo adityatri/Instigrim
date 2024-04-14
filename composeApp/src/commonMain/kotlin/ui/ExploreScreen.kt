@@ -56,7 +56,7 @@ fun ExploreScreen() {
                             bottom = 8.dp
                         )
                 ) {
-
+                    // show search history or suggestion
                 }
 
             }

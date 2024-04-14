@@ -1,10 +1,12 @@
 package component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,10 +16,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.rounded.Verified
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -110,16 +114,14 @@ fun BottomSheetComments(
                 list = getComments(selectedCommentId)
             }
         }
-
-        BottomSheetContent(list, expectedSheetSize, creatorProfilePic)
+        BottomSheetContent(list, expectedSheetSize)
     }
 }
 
 @Composable
 private fun BottomSheetContent(
     data: List<Comment> = arrayListOf(),
-    currentSheetSize: Dp,
-    creatorProfilePic: String
+    currentSheetSize: Dp
 ) {
     Column {
         Text(
@@ -138,10 +140,11 @@ private fun BottomSheetContent(
         if (data.isNotEmpty()) {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.height(currentSheetSize),
                 content = {
                     items(
-                        items = data
+                        // sort list of comments by its likes count, descending
+                        items = data.sortedByDescending { it.likes }
                     ) {
                         CommentItem(it)
                     }
@@ -190,7 +193,9 @@ private fun CommentItem(data: Comment) {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Start,
-            modifier = Modifier.weight(1f).padding(end = 8.dp)
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 8.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -201,42 +206,75 @@ private fun CommentItem(data: Comment) {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.fillMaxHeight()
                 )
-                if (data.isLikedByCreator) {
-                    Row(
+                if (data.isVerified) {
+                    Icon(
                         modifier = Modifier
-                            .padding(start = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .size(16.dp),
-                            imageVector = Icons.Default.Favorite,
-                            contentDescription = "like",
-                            tint = Color.Red
-                        )
-                        ProfilePicture(creatorPic, smallPic = true)
-                    }
+                            .size(20.dp)
+                            .padding(start = 4.dp)
+                            .fillMaxHeight(),
+                        tint = Color(0xff0694F1),
+                        imageVector = Icons.Rounded.Verified,
+                        contentDescription = "verified"
+                    )
                 }
             }
             Text(
                 text = data.userComment
             )
-        }
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .weight(0.15f)
-                .padding(top = 8.dp)
-        ) {
-            Icon(
-                modifier = Modifier
-                    .size(20.dp),
-                imageVector = Icons.Default.FavoriteBorder,
-                contentDescription = "like",
-            )
-            if (data.likes > 0) {
-                Text(text = data.likes.toString())
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "Reply",
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    fontWeight = FontWeight.Bold
+                )
+                if (data.isTranslationAvailable) {
+                    Text(
+                        text = "See translation",
+                        fontSize = 14.sp,
+                        color = Color.Gray,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box {
+                        Icon(
+                            modifier = Modifier
+                                .size(20.dp),
+                            imageVector = Icons.Default.FavoriteBorder,
+                            contentDescription = "like",
+                        )
+                        if (data.isLikedByCreator) {
+                            Box(
+                                modifier = Modifier
+                                    .padding(start = 14.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.White)
+                                    .padding(2.dp)
+                            ) {
+                                ProfilePicture(
+                                    creatorPic,
+                                    smallPic = true
+                                )
+                            }
+                        }
+                    }
+
+                    if (data.likes > 0) {
+                        Text(
+                            text = data.likes.toString(),
+                            modifier = Modifier.padding(start = 4.dp),
+                            fontSize = 14.sp,
+                            color = Color.DarkGray
+                        )
+                    }
+                }
             }
         }
     }

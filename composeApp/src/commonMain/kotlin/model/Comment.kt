@@ -11,5 +11,6 @@ data class Comment(
     val username: String = "",
     val isVerified: Boolean = false,
     val likes: Int = 0,
-    val isLikedByCreator: Boolean = false
+    val isLikedByCreator: Boolean = false,
+    val isTranslationAvailable: Boolean = false
 )
