@@ -2,7 +2,6 @@ package navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -10,12 +9,13 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import io.kamel.core.Resource
 import io.kamel.image.asyncPainterResource
+import ui.ProfileScreen
 import util.Constant
 
 object ProfileTab : Tab {
     @Composable
     override fun Content() {
-        Text(text = "Profile")
+        ProfileScreen()
     }
 
     override val options: TabOptions
