@@ -31,6 +31,7 @@ import navigation.HomeTab
 import navigation.ProfileTab
 import navigation.ReelsTab
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import util.getAppTheme
 
 val shouldShowBottomSheet = mutableStateOf(false)
 val selectedCommentId = mutableStateOf("")
@@ -40,7 +41,9 @@ val creatorProfilePic = mutableStateOf("")
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
+    MaterialTheme(
+        colorScheme = getAppTheme()
+    ) {
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
             Box(modifier = Modifier.weight(1f)) {
                 TabNavigator(HomeTab) {
@@ -55,7 +58,7 @@ fun App() {
                         bottomBar = {
                             CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
                                 BottomNavigation(
-                                    backgroundColor = Color.White,
+                                    backgroundColor = getAppTheme().background,
                                     elevation = 8.dp
                                 ) {
                                     TabNavigationItem(HomeTab)
@@ -112,7 +115,8 @@ private fun RowScope.TabNavigationItem(tab: Tab) {
                     Icon(
                         painter,
                         contentDescription = tab.options.title,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(32.dp),
+                        tint = getAppTheme().onBackground
                     )
                 }
             }

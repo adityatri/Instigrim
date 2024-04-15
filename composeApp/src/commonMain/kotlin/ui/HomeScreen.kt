@@ -83,6 +83,7 @@ import model.Post
 import model.Story
 import selectedCommentId
 import shouldShowBottomSheet
+import util.getAppTheme
 
 @Composable
 fun HomeScreen() {
@@ -92,7 +93,9 @@ fun HomeScreen() {
         posts = getPosts()
         stories = getStories()
     }
-    MaterialTheme {
+    MaterialTheme(
+        colorScheme = getAppTheme()
+    ) {
         Dashboard(posts, stories)
     }
 }
@@ -144,10 +147,6 @@ fun CustomTopAppBar(scrollBehavior: TopAppBarScrollBehavior) {
                 fontSize = 36.sp
             )
         },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = Color.White,
-            scrolledContainerColor = Color.White
-        ),
         actions = {
             IconButton(onClick = { }) {
                 Box(contentAlignment = Alignment.TopEnd) {
@@ -331,7 +330,7 @@ fun Description(data: Post) {
                     val hashtagIndex = data.caption.indexOf('#')
                     if (hashtagIndex > 0) {
                         val listOfHashtag = data.caption.substring(hashtagIndex)
-                        withStyle(style = SpanStyle(color = Color(0xff00008B))) {
+                        withStyle(style = SpanStyle(color = getAppTheme().tertiary)) {
                             append(listOfHashtag)
                         }
                     }
@@ -455,7 +454,8 @@ fun ImageIndicator(imageCount: Int, pagerState: PagerState) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         repeat(imageCount) { iteration ->
-            val color = if (pagerState.currentPage == iteration) Color.Blue else Color.LightGray
+            val color =
+                if (pagerState.currentPage == iteration) getAppTheme().onTertiaryContainer else getAppTheme().tertiaryContainer
             Box(
                 modifier = Modifier
                     .padding(2.dp)

@@ -46,6 +46,7 @@ import com.skydoves.flexible.core.rememberFlexibleBottomSheetState
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.firestore.firestore
 import model.Comment
+import util.getAppTheme
 import util.screenHeight
 
 private var creatorPic: String = ""
@@ -101,7 +102,7 @@ fun BottomSheetComments(
     FlexibleBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = bottomSheetState,
-        containerColor = Color.White,
+        containerColor = getAppTheme().surfaceContainer,
         dragHandle = { BottomSheetDefaults.DragHandle(color = Color(0xff858585)) },
         onTargetChanges = { sheetValue ->
             currentSheetTarget = sheetValue
@@ -134,7 +135,7 @@ private fun BottomSheetContent(
         )
         Divider(
             modifier = Modifier.padding(top = 8.dp),
-            color = Color(0xffededed),
+            color = getAppTheme().inverseOnSurface,
             thickness = 1.dp
         )
         if (data.isNotEmpty()) {
@@ -255,7 +256,7 @@ private fun CommentItem(data: Comment) {
                                 modifier = Modifier
                                     .padding(start = 14.dp)
                                     .clip(CircleShape)
-                                    .background(Color.White)
+                                    .background(getAppTheme().background)
                                     .padding(2.dp)
                             ) {
                                 ProfilePicture(
@@ -271,7 +272,7 @@ private fun CommentItem(data: Comment) {
                             text = data.likes.toString(),
                             modifier = Modifier.padding(start = 4.dp),
                             fontSize = 14.sp,
-                            color = Color.DarkGray
+                            color = getAppTheme().onSurface
                         )
                     }
                 }

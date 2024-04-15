@@ -35,6 +35,7 @@ import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import model.Story
 import util.Constant
+import util.getAppTheme
 
 @Composable
 fun Stories(data: List<Story>) {
@@ -69,7 +70,7 @@ fun Stories(data: List<Story>) {
                     Box(
                         modifier = Modifier
                             .clip(CircleShape)
-                            .background(Color.White)
+                            .background(getAppTheme().background)
                     ) {
                         Icon(
                             Icons.Filled.AddCircle,
@@ -94,7 +95,7 @@ fun Stories(data: List<Story>) {
     }
     Divider(
         modifier = Modifier.padding(top = 8.dp),
-        color = Color(0xffededed),
+        color = getAppTheme().inverseOnSurface,
         thickness = 1.dp
     )
 }
@@ -128,7 +129,7 @@ fun StoryItem(data: Story) {
                 )
                 .border(
                     width = 5.dp,
-                    color = Color.White,
+                    color = getAppTheme().background,
                     shape = CircleShape,
                 )
         )

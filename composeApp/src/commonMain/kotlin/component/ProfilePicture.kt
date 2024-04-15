@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import io.kamel.core.Resource
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
+import util.getAppTheme
 
 @Composable
 fun ProfilePicture(
@@ -53,7 +54,7 @@ fun ProfilePicture(
                 )
                 .border(
                     width = 3.dp,
-                    color = Color.White,
+                    color = getAppTheme().background,
                     shape = CircleShape,
                 )
         )

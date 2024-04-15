@@ -51,10 +51,13 @@ import io.kamel.core.Resource
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import util.Constant
+import util.getAppTheme
 
 @Composable
 fun ProfileScreen() {
-    MaterialTheme() {
+    MaterialTheme(
+        colorScheme = getAppTheme()
+    ) {
         ProfileDetail()
     }
 }
@@ -92,16 +95,12 @@ fun ProfileTopAppBar(scrollBehavior: TopAppBarScrollBehavior) {
                     Icon(
                         Icons.Filled.ExpandMore,
                         "Expand",
-                        tint = Color.Gray,
+                        tint = getAppTheme().onSurface,
                         modifier = Modifier.offset(x = (-8).dp)
                     )
                 }
             }
         },
-//        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-//            containerColor = Color.White,
-//            scrolledContainerColor = Color.White
-//        ),
         actions = {
             IconButton(onClick = { }) {
                 Box(contentAlignment = Alignment.TopEnd) {
@@ -159,7 +158,7 @@ fun AccountDetail(modifier: Modifier) {
                 Box(
                     modifier = Modifier
                         .clip(CircleShape)
-                        .background(Color.White)
+                        .background(getAppTheme().background)
                 ) {
                     Icon(
                         Icons.Filled.AddCircle,
@@ -222,49 +221,49 @@ fun AccountDetail(modifier: Modifier) {
         ) {
             OutlinedButton(
                 onClick = {},
-                border = BorderStroke(1.dp, Color.DarkGray),
+                border = BorderStroke(1.dp, getAppTheme().onSurfaceVariant),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color.White
+                    backgroundColor = getAppTheme().background
                 )
             ) {
                 Text(
                     text = "Edit profile",
-                    color = Color.DarkGray,
+                    color = getAppTheme().onSurface,
                     fontWeight = FontWeight.Bold
                 )
             }
             OutlinedButton(
                 onClick = {},
-                border = BorderStroke(1.dp, Color.DarkGray),
+                border = BorderStroke(1.dp, getAppTheme().onSurfaceVariant),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color.White
+                    backgroundColor = getAppTheme().background
                 )
             ) {
                 Text(
                     text = "Share profile",
-                    color = Color.DarkGray,
+                    color = getAppTheme().onSurface,
                     fontWeight = FontWeight.Bold
                 )
             }
             OutlinedButton(
                 onClick = {},
-                border = BorderStroke(1.dp, Color.DarkGray),
+                border = BorderStroke(1.dp, getAppTheme().onSurfaceVariant),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.width(IntrinsicSize.Min),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color.White
+                    backgroundColor = getAppTheme().background
                 )
             ) {
                 Icon(
                     Icons.Outlined.PersonAdd,
                     "Follow",
-                    tint = Color.DarkGray
+                    tint = getAppTheme().onSurface
                 )
             }
         }
