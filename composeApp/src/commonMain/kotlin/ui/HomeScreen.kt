@@ -6,12 +6,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,6 +22,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
@@ -28,7 +32,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.ModeComment
-import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Verified
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -55,35 +59,50 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import billabongFontFamily
+import component.ProfilePicture
+import component.Stories
+import creatorProfilePic
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.firestore.firestore
+import hasComment
 import io.kamel.core.Resource
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.launch
 import model.Post
+import model.Story
+import selectedCommentId
+import shouldShowBottomSheet
+import util.getAppTheme
 
 @Composable
 fun HomeScreen() {
-    var list by remember { mutableStateOf(listOf<Post>()) }
+    var posts by remember { mutableStateOf(listOf<Post>()) }
+    var stories by remember { mutableStateOf(listOf<Story>()) }
     LaunchedEffect(Unit) {
-        list = getPosts()
+        posts = getPosts()
+        stories = getStories()
     }
-    MaterialTheme {
-        Dashboard(list)
+    MaterialTheme(
+        colorScheme = getAppTheme()
+    ) {
+        Dashboard(posts, stories)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Dashboard(userData: List<Post>) {
+fun Dashboard(posts: List<Post>, stories: List<Story>) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
     Scaffold(
@@ -92,13 +111,16 @@ fun Dashboard(userData: List<Post>) {
             CustomTopAppBar(scrollBehavior = scrollBehavior)
         },
         content = { innerPadding ->
-            AnimatedVisibility(userData.isNotEmpty()) {
+            AnimatedVisibility(posts.isNotEmpty()) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.fillMaxSize(),
                     content = {
+                        item {
+                            Stories(stories)
+                        }
                         items(
-                            items = userData,
+                            items = posts,
                             key = {
                                 it.id
                             }
@@ -113,19 +135,6 @@ fun Dashboard(userData: List<Post>) {
     )
 }
 
-suspend fun getPosts(): List<Post> {
-    val firebaseFirestore = Firebase.firestore
-    try {
-        val postResponse =
-            firebaseFirestore.collection("posts").get()
-        return postResponse.documents.map {
-            it.data()
-        }
-    } catch (e: Throwable) {
-        throw e
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomTopAppBar(scrollBehavior: TopAppBarScrollBehavior) {
@@ -135,13 +144,9 @@ fun CustomTopAppBar(scrollBehavior: TopAppBarScrollBehavior) {
                 "Instigrim",
                 fontFamily = billabongFontFamily,
                 fontWeight = FontWeight.Normal,
-                fontSize = 32.sp
+                fontSize = 36.sp
             )
         },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = Color.White,
-            scrolledContainerColor = Color.White
-        ),
         actions = {
             IconButton(onClick = { }) {
                 Box(contentAlignment = Alignment.TopEnd) {
@@ -155,7 +160,35 @@ fun CustomTopAppBar(scrollBehavior: TopAppBarScrollBehavior) {
                 }
             }
             IconButton(onClick = { }) {
-                Icon(Icons.Filled.ChatBubbleOutline, "messages")
+                Box(
+                    contentAlignment = Alignment.TopEnd,
+                    modifier = Modifier
+                        .padding(end = 4.dp)
+                ) {
+                    Icon(Icons.Filled.ChatBubbleOutline, "messages")
+                    Box(
+                        modifier = Modifier
+                            .offset(x = 6.dp, y = (-5).dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .background(Color.Red)
+                                .size(18.dp)
+                                .requiredHeight(IntrinsicSize.Min)
+                                .offset(x = msgNotifOffsetX, y = msgNotifOffsetY),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "4",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
             }
         },
         scrollBehavior = scrollBehavior
@@ -168,14 +201,14 @@ fun CustomTopAppBar(scrollBehavior: TopAppBarScrollBehavior) {
 fun PostItem(data: Post) {
     Column(
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Start,
+        horizontalAlignment = Alignment.Start
     ) {
         Username(data)
         if (data.imgPath.size > 1) {
             ImageSlider(data)
         } else {
             Photo(data.imgPath[0])
-            PostInteraction(isLiked = data.isLiked)
+            PostInteraction(isLiked = data.isLiked, isCommentExist = data.commentCount > 0)
         }
         Description(data)
     }
@@ -184,24 +217,14 @@ fun PostItem(data: Post) {
 @Composable
 fun Username(data: Post) {
     Row(
-        modifier = Modifier.fillMaxWidth()
-            .padding(start = 16.dp, end = 8.dp, bottom = 8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            val painterResource: Resource<Painter> = asyncPainterResource(
-                data.profilePic,
-                filterQuality = FilterQuality.Low,
-            )
-            KamelImage(
-                resource = painterResource,
-                contentDescription = "Profile picture",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape),
-            )
+            ProfilePicture(data.profilePic, isStoryAvailable = data.isStoryAvailable)
             Text(
                 modifier = Modifier
                     .padding(start = 8.dp)
@@ -215,8 +238,8 @@ fun Username(data: Post) {
                         .size(20.dp)
                         .padding(start = 4.dp)
                         .fillMaxHeight(),
-                    tint = Color.Blue,
-                    imageVector = Icons.Rounded.CheckCircle,
+                    tint = Color(0xff0694F1),
+                    imageVector = Icons.Rounded.Verified,
                     contentDescription = "verified"
                 )
             }
@@ -258,7 +281,7 @@ fun ImageSlider(data: Post) {
             }
         }
     }
-    PostInteraction(data.imgPath.size, pagerState, data.isLiked)
+    PostInteraction(data.imgPath.size, pagerState, data.isLiked, data.commentCount > 0)
 }
 
 @Composable
@@ -307,13 +330,42 @@ fun Description(data: Post) {
                     val hashtagIndex = data.caption.indexOf('#')
                     if (hashtagIndex > 0) {
                         val listOfHashtag = data.caption.substring(hashtagIndex)
-                        withStyle(style = SpanStyle(color = Color(0xff00008B))) {
+                        withStyle(style = SpanStyle(color = getAppTheme().tertiary)) {
                             append(listOfHashtag)
                         }
                     }
                 }
             }
         )
+        if (data.commentCount > 0) {
+            ClickableText(
+                text = AnnotatedString("View all ${data.commentCount} comments"),
+                style = TextStyle(
+                    color = Color.Gray
+                ),
+                modifier = Modifier.padding(top = 4.dp),
+                onClick = {
+                    shouldShowBottomSheet.value = !shouldShowBottomSheet.value
+                    hasComment.value = true
+                    creatorProfilePic.value = data.profilePic
+                    selectedCommentId.value =
+                        "T9CKeJfGecJo8YpLKl8t"    // hardcoded, as @DocumentId is not supported yet
+                }
+            )
+        } else {
+            Row {
+                ClickableText(
+                    text = AnnotatedString("Add a comment..."),
+                    style = TextStyle(
+                        color = Color.Gray
+                    ),
+                    modifier = Modifier.padding(top = 4.dp),
+                    onClick = {
+
+                    }
+                )
+            }
+        }
         Text(
             text = "10 minutes ago",
             color = Color.Gray,
@@ -324,7 +376,12 @@ fun Description(data: Post) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PostInteraction(imageCount: Int = 0, pagerState: PagerState? = null, isLiked: Boolean = false) {
+fun PostInteraction(
+    imageCount: Int = 0,
+    pagerState: PagerState? = null,
+    isLiked: Boolean = false,
+    isCommentExist: Boolean
+) {
     Box(contentAlignment = Alignment.BottomCenter) {
         Row(
             modifier = Modifier
@@ -355,12 +412,17 @@ fun PostInteraction(imageCount: Int = 0, pagerState: PagerState? = null, isLiked
                         contentDescription = "like"
                     )
                 }
-                Icon(
-                    modifier = Modifier
-                        .size(24.dp),
-                    imageVector = Icons.Outlined.ModeComment,
-                    contentDescription = "comment"
-                )
+                IconButton(onClick = {
+                    shouldShowBottomSheet.value = !shouldShowBottomSheet.value
+                    hasComment.value = isCommentExist
+                }) {
+                    Icon(
+                        modifier = Modifier
+                            .size(24.dp),
+                        imageVector = Icons.Outlined.ModeComment,
+                        contentDescription = "comment",
+                    )
+                }
                 Icon(
                     modifier = Modifier
                         .size(24.dp),
@@ -392,7 +454,8 @@ fun ImageIndicator(imageCount: Int, pagerState: PagerState) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         repeat(imageCount) { iteration ->
-            val color = if (pagerState.currentPage == iteration) Color.Blue else Color.LightGray
+            val color =
+                if (pagerState.currentPage == iteration) getAppTheme().onTertiaryContainer else getAppTheme().tertiaryContainer
             Box(
                 modifier = Modifier
                     .padding(2.dp)
@@ -401,5 +464,36 @@ fun ImageIndicator(imageCount: Int, pagerState: PagerState) {
                     .size(6.dp)
             )
         }
+    }
+}
+
+expect val msgNotifOffsetX: Dp
+expect val msgNotifOffsetY: Dp
+
+// suspend function
+
+suspend fun getPosts(): List<Post> {
+    val firebaseFirestore = Firebase.firestore
+    try {
+        val postResponse =
+            firebaseFirestore.collection("posts").get()
+        return postResponse.documents.map {
+            it.data()
+        }
+    } catch (e: Throwable) {
+        throw e
+    }
+}
+
+suspend fun getStories(): List<Story> {
+    val firebaseFirestore = Firebase.firestore
+    try {
+        val postResponse =
+            firebaseFirestore.collection("stories").get()
+        return postResponse.documents.map {
+            it.data()
+        }
+    } catch (e: Throwable) {
+        throw e
     }
 }

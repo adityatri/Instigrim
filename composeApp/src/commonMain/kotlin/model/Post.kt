@@ -15,4 +15,6 @@ data class Post(
     val imgPath: List<String> = arrayListOf(),
     val isLiked: Boolean = false,
     val profilePic: String = "",
+    val commentCount: Int = 0,
+    val isStoryAvailable: Boolean = false
 )

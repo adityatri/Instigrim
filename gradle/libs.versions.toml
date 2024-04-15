@@ -12,18 +12,21 @@ androidx-material = "1.11.0"
 androidx-test-junit = "1.1.5"
 compose = "1.6.2"
 compose-plugin = "1.6.0"
+flexibleBottomsheetMaterial3 = "0.1.2"
 junit = "4.13.2"
 kamelImage = "0.9.3"
 kotlin = "1.9.22"
-firebaseFirestore = "1.8.1"
-firebaseCommonKtx = "20.3.3"
+firebaseFirestore = "1.12.0"
+firebaseCommonKtx = "20.4.3"
 google-service = "4.4.1"
-firebaseBom = "30.0.1"
+firebaseBom = "32.8.0"
 kotlinxSerializationJson = "1.5.1"
 navigationCore = "0.10.0"
 ktor = "2.3.9"
+voyager = "1.0.0"
 
 [libraries]
+flexible-bottomsheet-material3 = { module = "com.github.skydoves:flexible-bottomsheet-material3", version.ref = "flexibleBottomsheetMaterial3" }
 kamel-image = { module = "media.kamel:kamel-image", version.ref = "kamelImage" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
@@ -47,6 +50,8 @@ navigation-core = { module = "com.chrynan.navigation:navigation-core", version.r
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
+voyager-tab-navigator = { module = "cafe.adriel.voyager:voyager-tab-navigator", version.ref = "voyager" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

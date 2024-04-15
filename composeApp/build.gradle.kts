@@ -50,13 +50,15 @@ kotlin {
             // firebase firestore
             implementation(libs.firebase.firestore)
             implementation(libs.firebase.common)
-            // bottom navigation
-            implementation(libs.navigation.core)
-            implementation(libs.navigation.compose)
             // image loader
             implementation(libs.kamel.image)
             // ktor
             implementation(libs.ktor.client.core)
+            // bottom sheet
+            implementation(libs.flexible.bottomsheet.material3)
+            // voyager
+            implementation(libs.voyager.navigator)
+            implementation(libs.voyager.tab.navigator)
         }
         iosMain.dependencies {
             // ktor
@@ -99,4 +101,3 @@ android {
         implementation(libs.firebase.common.ktx)
     }
 }
-
