@@ -415,6 +415,8 @@ fun PostInteraction(
                 IconButton(onClick = {
                     shouldShowBottomSheet.value = !shouldShowBottomSheet.value
                     hasComment.value = isCommentExist
+                    selectedCommentId.value =
+                        "T9CKeJfGecJo8YpLKl8t"    // hardcoded, as @DocumentId is not supported yet
                 }) {
                     Icon(
                         modifier = Modifier
