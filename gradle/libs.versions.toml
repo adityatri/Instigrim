@@ -24,6 +24,7 @@ kotlinxSerializationJson = "1.5.1"
 navigationCore = "0.10.0"
 ktor = "2.3.9"
 voyager = "1.0.0"
+androidxLifecycle = "2.8.0-beta01"
 
 [libraries]
 flexible-bottomsheet-material3 = { module = "com.github.skydoves:flexible-bottomsheet-material3", version.ref = "flexibleBottomsheetMaterial3" }
@@ -52,6 +53,7 @@ ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "kto
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
 voyager-tab-navigator = { module = "cafe.adriel.voyager:voyager-tab-navigator", version.ref = "voyager" }
+androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "androidxLifecycle" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
