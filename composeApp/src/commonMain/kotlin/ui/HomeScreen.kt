@@ -45,12 +45,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -72,8 +68,6 @@ import billabongFontFamily
 import component.ProfilePicture
 import component.Stories
 import creatorProfilePic
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.firestore.firestore
 import hasComment
 import io.kamel.core.Resource
 import io.kamel.image.KamelImage
@@ -81,22 +75,36 @@ import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.launch
 import model.Post
 import model.Story
+import mvi.action.HomeAction
+import mvi.state.HomeState
+import mvi.viewmodel.HomeViewModel
 import selectedCommentId
 import shouldShowBottomSheet
 import util.getAppTheme
 
+expect val msgNotifOffsetX: Dp
+expect val msgNotifOffsetY: Dp
+
 @Composable
-fun HomeScreen() {
-    var posts by remember { mutableStateOf(listOf<Post>()) }
-    var stories by remember { mutableStateOf(listOf<Story>()) }
-    LaunchedEffect(Unit) {
-        posts = getPosts()
-        stories = getStories()
-    }
+fun HomeScreenRoot(
+    viewModel: HomeViewModel
+) {
+    HomeScreen(
+        state = viewModel.state,
+        onAction = viewModel::onAction
+    )
+}
+
+@Composable
+fun HomeScreen(
+    state: HomeState,
+    onAction: (HomeAction) -> Unit
+) {
+
     MaterialTheme(
         colorScheme = getAppTheme()
     ) {
-        Dashboard(posts, stories)
+        Dashboard(state.posts, state.stories)
     }
 }
 
@@ -466,36 +474,5 @@ fun ImageIndicator(imageCount: Int, pagerState: PagerState) {
                     .size(6.dp)
             )
         }
-    }
-}
-
-expect val msgNotifOffsetX: Dp
-expect val msgNotifOffsetY: Dp
-
-// suspend function
-
-suspend fun getPosts(): List<Post> {
-    val firebaseFirestore = Firebase.firestore
-    try {
-        val postResponse =
-            firebaseFirestore.collection("posts").get()
-        return postResponse.documents.map {
-            it.data()
-        }
-    } catch (e: Throwable) {
-        throw e
-    }
-}
-
-suspend fun getStories(): List<Story> {
-    val firebaseFirestore = Firebase.firestore
-    try {
-        val postResponse =
-            firebaseFirestore.collection("stories").get()
-        return postResponse.documents.map {
-            it.data()
-        }
-    } catch (e: Throwable) {
-        throw e
     }
 }

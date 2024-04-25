@@ -59,6 +59,8 @@ kotlin {
             // voyager
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.tab.navigator)
+            // viewmodel
+            implementation(libs.androidx.lifecycle.viewmodel)
         }
         iosMain.dependencies {
             // ktor
@@ -99,5 +101,14 @@ android {
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
         implementation(libs.firebase.common.ktx)
+    }
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency {
+        // to resolve duplicate class due to adding viewmodel dependency
+        if (this.requested.group == "androidx.lifecycle" && this.requested.module.name == "lifecycle-viewmodel-ktx") {
+            this.useVersion("2.8.0-beta01")
+        }
     }
 }
