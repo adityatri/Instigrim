@@ -78,6 +78,7 @@ import model.Story
 import mvi.action.HomeAction
 import mvi.state.HomeState
 import mvi.viewmodel.HomeViewModel
+import org.koin.compose.koinInject
 import selectedCommentId
 import shouldShowBottomSheet
 import util.getAppTheme
@@ -87,7 +88,7 @@ expect val msgNotifOffsetY: Dp
 
 @Composable
 fun HomeScreenRoot(
-    viewModel: HomeViewModel
+    viewModel: HomeViewModel = koinInject()
 ) {
     HomeScreen(
         state = viewModel.state,
