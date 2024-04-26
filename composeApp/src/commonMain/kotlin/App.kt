@@ -25,12 +25,14 @@ import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import component.BottomSheetComments
+import di.appModule
 import navigation.CreateTab
 import navigation.ExploreTab
 import navigation.HomeTab
 import navigation.ProfileTab
 import navigation.ReelsTab
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.KoinApplication
 import util.getAppTheme
 
 val shouldShowBottomSheet = mutableStateOf(false)
@@ -41,6 +43,15 @@ val creatorProfilePic = mutableStateOf("")
 @Composable
 @Preview
 fun App() {
+    KoinApplication(application = {
+        modules(appModule())
+    }) {
+        AppContent()
+    }
+}
+
+@Composable
+fun AppContent() {
     MaterialTheme(
         colorScheme = getAppTheme()
     ) {

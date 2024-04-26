@@ -35,6 +35,8 @@ kotlin {
             implementation(project.dependencies.platform(libs.firebase.bom))
             // ktor
             implementation(libs.ktor.client.okhttp)
+            // koin
+            implementation(libs.koin.android)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -61,6 +63,9 @@ kotlin {
             implementation(libs.voyager.tab.navigator)
             // viewmodel
             implementation(libs.androidx.lifecycle.viewmodel)
+            // koin
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
         }
         iosMain.dependencies {
             // ktor
