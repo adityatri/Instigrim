@@ -24,7 +24,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import enum.ItemType
+import model.ExploreItem
 import util.screenHeight
+import kotlin.random.Random
+
+expect fun getVideoItemIndexByPlatform(): Array<Int>
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,14 +66,14 @@ fun ExploreScreen() {
 
             }
         ) {
-            AnimatedVisibility(boxItems.isNotEmpty()) {
+            AnimatedVisibility(dummyItems.isNotEmpty()) {
                 LazyVerticalStaggeredGrid(
                     columns = StaggeredGridCells.Fixed(3),
                     verticalItemSpacing = 2.dp,
                     horizontalArrangement = Arrangement.spacedBy(2.dp),
                     modifier = Modifier.padding(top = it.calculateTopPadding())
                 ) {
-                    items(boxItems) {
+                    items(dummyItems) {
                         Item(item = it)
                     }
                 }
@@ -77,101 +82,42 @@ fun ExploreScreen() {
     }
 }
 
-class GridItem(
-    val id: String,
-    val color: Color,
-    val screenRatio: Int
-)
-
 @Composable
 fun Item(
     modifier: Modifier = Modifier,
-    item: GridItem
+    item: ExploreItem
 ) {
+    val boxSize = screenHeight().div(6)
+    val rectangleSize = (boxSize * 2) + 2.dp
     Box(
         modifier = modifier
             .background(item.color)
-            .height(screenHeight().div(item.screenRatio)),
+            .fillMaxWidth()
+            .then(
+                if (item.type == ItemType.IMAGE)
+                    Modifier.height(boxSize)
+                else
+                    Modifier.height(rectangleSize)
+            ),
         contentAlignment = Alignment.Center
     ) {
-        Text(item.id)
+        Text(
+            text = item.id.toString(),
+            color = Color.White
+        )
     }
 }
 
-val boxItems: List<GridItem> = listOf(
-    GridItem(
-        "1",
-        Color.Red,
-        6
-    ),
-    GridItem(
-        "2",
-        Color.Blue,
-        6
-    ),
-    GridItem(
-        "3",
-        Color.Yellow,
-        3
-    ),
-    GridItem(
-        "4",
-        Color.Green,
-        6
-    ),
-    GridItem(
-        "5",
-        Color.Gray,
-        6
-    ),
-    GridItem(
-        "6",
-        Color.Cyan,
-        6
-    ),
-    GridItem(
-        "7",
-        Color.Red,
-        3
-    ),
-    GridItem(
-        "8",
-        Color.Blue,
-        6
-    ),
-    GridItem(
-        "9",
-        Color.Yellow,
-        6
-    ),
-    GridItem(
-        "10",
-        Color.Green,
-        6
-    ),
-    GridItem(
-        "11",
-        Color.Gray,
-        6
-    ),
-    GridItem(
-        "12",
-        Color.Cyan,
-        3
-    ),
-    GridItem(
-        "13",
-        Color.Red,
-        6
-    ),
-    GridItem(
-        "14",
-        Color.Blue,
-        6
-    ),
-    GridItem(
-        "15",
-        Color.Yellow,
-        6
-    ),
-)
+/*
+    Item order in StaggeredGrid seems working fine in iOS (left to right), but in Android somehow the
+    items are not rendered in sequence (can refer to the number on each item).
+    Hence I'm using expect function 'getVideoItemIndexByPlatform' to return index values from each platform.
+ */
+val dummyItems = (1..20).map { id ->
+    ExploreItem(
+        id,
+        Color(Random.nextLong(0xFFFFFFFF)).copy(alpha = 1f),
+        type = if (id in getVideoItemIndexByPlatform())
+            ItemType.VIDEO else ItemType.IMAGE
+    )
+}
