@@ -2,7 +2,7 @@
 > [!NOTE]
 > KMP is growing rapidly. By the time you access this repo, some of the dependencies might be deprecated.
 
-This is a Kotlin Multiplatform (KMP) project targeting Android, iOS.
+This is a Kotlin Multiplatform (KMP) project targeting Android, iOS. This project was created by using [Kotlin Multiplatform Wizard](https://kmp.jetbrains.com/).
 
 * `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
   It contains several subfolders:
